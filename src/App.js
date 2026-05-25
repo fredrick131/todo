@@ -6,8 +6,9 @@ function App() {
   const [tasks, setTasks] = useState([]);
 
   // BACKEND URL
-const API = "https://todo-backend-6-s5xo.onrender.com/tasks";
-  // GET (with error handling)
+  const API = "https://todo-backend-6-s5xo.onrender.com/tasks";
+
+  // GET TASKS
   const getTasks = async () => {
     try {
       const res = await fetch(API);
@@ -22,66 +23,71 @@ const API = "https://todo-backend-6-s5xo.onrender.com/tasks";
     getTasks();
   }, []);
 
-  // ADD
+  // ADD TASK
   const addTask = async () => {
     if (!task) return;
 
     try {
       const res = await fetch(API, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: task }), // FIXED
       });
 
       const data = await res.json();
-      setTasks(data);
+
+      // FIXED: append correctly
+      setTasks((prev) => [...prev, data]);
       setTask("");
     } catch (err) {
       console.log("ADD error:", err);
     }
   };
 
-  // COMPLETE
+  // COMPLETE / TOGGLE TASK
   const completeTask = async (id) => {
     try {
       const res = await fetch(`${API}/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "done" }),
       });
 
       const data = await res.json();
-      setTasks(data);
+
+      setTasks((prev) =>
+        prev.map((t) => (t._id === id ? data : t))
+      );
     } catch (err) {
       console.log("UPDATE error:", err);
     }
   };
 
-  // FAIL
+  // FAIL TASK
   const failTask = async (id) => {
     try {
       const res = await fetch(`${API}/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "fail" }),
       });
 
       const data = await res.json();
-      setTasks(data);
+
+      setTasks((prev) =>
+        prev.map((t) => (t._id === id ? data : t))
+      );
     } catch (err) {
       console.log("FAIL error:", err);
     }
   };
 
-  // DELETE
+  // DELETE TASK
   const deleteTask = async (id) => {
     try {
-      const res = await fetch(`${API}/${id}`, {
+      await fetch(`${API}/${id}`, {
         method: "DELETE",
       });
 
-      const data = await res.json();
-      setTasks(data);
+      setTasks((prev) => prev.filter((t) => t._id !== id));
     } catch (err) {
       console.log("DELETE error:", err);
     }
@@ -91,7 +97,7 @@ const API = "https://todo-backend-6-s5xo.onrender.com/tasks";
     <div className="app-wrapper">
 
       <div className="top-header">
-        ITS FREDRICK'S FIRST PROJECT OF FULL STACK
+        ITS FREDRICK'S FIRST FULL STACK PROJECT 🚀
       </div>
 
       <div className="app">
@@ -111,13 +117,13 @@ const API = "https://todo-backend-6-s5xo.onrender.com/tasks";
 
           <ul>
             {tasks.map((t) => (
-              <li key={t._id} className={t.status}>
-                <span>{t.task}</span>
+              <li key={t._id} className={t.completed ? "done" : ""}>
+                <span>{t.text}</span>
 
                 <div className="actions">
-                  <button className="ok" onClick={() => completeTask(t._id)}>✓</button>
-                  <button className="no" onClick={() => failTask(t._id)}>✗</button>
-                  <button className="del" onClick={() => deleteTask(t._id)}>🗑</button>
+                  <button onClick={() => completeTask(t._id)}>✔</button>
+                  <button onClick={() => failTask(t._id)}>✗</button>
+                  <button onClick={() => deleteTask(t._id)}>🗑</button>
                 </div>
               </li>
             ))}
