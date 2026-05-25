@@ -6,8 +6,7 @@ function App() {
   const [tasks, setTasks] = useState([]);
 
   // BACKEND URL
-  const API = "https://todo-backend-5-8iqc.onrender.com/api/tasks";
-
+const API = "https://todo-backend-6-s5xo.onrender.com/tasks";
   // GET (with error handling)
   const getTasks = async () => {
     try {
